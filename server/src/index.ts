@@ -2,6 +2,7 @@ import 'express-async-errors';
 import express, { Response, Request, NextFunction } from 'express';
 import appRouter from './routes';
 import { HttpError } from './errors/error';
+import cors from "cors";
 
 const port = process.env.PORT_BACKEND || 8080;
 class App {
@@ -15,6 +16,8 @@ class App {
 
   private config(): void {
     this.app.use(express.json());
+
+    this.app.use(cors({origin: process.env.FRONTEND_URL || 'http://localhost'}));
   }
 
   private routes(): void {

@@ -10,6 +10,7 @@ services:
     volumes:
       - ./client/src:/app/client/src
       - ./client/public:/app/client/public
+      - ./client/package.json:/app/client/package.json
     depends_on:
       - backend
   backend:

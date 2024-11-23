@@ -31,6 +31,8 @@ export default function Actions({
         value
       });
       
+      toast.success("Viagem confirmada com sucesso!");
+
       navigate("/viagens");
     } catch (err: unknown) {
       const error = err as Error | AxiosError;

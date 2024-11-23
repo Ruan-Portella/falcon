@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import RideMap from "@/features/ride/components/ride.map";
 import RideOptions from "@/features/ride/components/ride.options";
+import { duration } from "@/lib/utils";
 
 export type RideOption = {
   id: number;
@@ -106,6 +107,12 @@ export default function Rides() {
               {ride ? (
                 <>
                 <RideMap ride={ride} routeCoordinates={routeCoordinates} />
+                <h2 className="text-xl font-semibold mt-4">
+                  Escolha um motorista para realizar a viagem
+                </h2>
+                <p>
+                  Distância: {(ride.distance / 1000).toFixed(1)} Km - Duração: {duration(ride.duration)}
+                </p>
                 <RideOptions options={ride.options} />
                 </>
               ) : (

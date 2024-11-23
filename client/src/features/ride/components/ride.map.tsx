@@ -42,8 +42,6 @@ export default function RideMap({
       center={getCenter(ride.origin, ride.destination)}
       zoom={7}
       scrollWheelZoom={false}
-      zoomControl={false}
-      dragging={false}
       markerZoomAnimation={false}
       doubleClickZoom={false}
       style={{ width: "100%", height: "400px" }}

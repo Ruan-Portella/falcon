@@ -8,6 +8,17 @@ import {
 import "leaflet/dist/leaflet.css";
 import { RideResponse } from "@/pages/Rides";
 
+export const FitBounds = ({ride}: {ride: RideResponse}) => {
+  const map = useMap();
+  if (ride) {
+    map.fitBounds([
+      [ride.origin.latitude, ride.origin.longitude],
+      [ride.destination.latitude, ride.destination.longitude],
+    ]);
+  }
+  return null;
+};
+
 export default function RideMap({
   ride,
   routeCoordinates,
@@ -24,17 +35,6 @@ export default function RideMap({
       (origin.latitude + destination.latitude) / 2,
       (origin.longitude + destination.longitude) / 2,
     ];
-  };
-
-  const FitBounds = () => {
-    const map = useMap();
-    if (ride) {
-      map.fitBounds([
-        [ride.origin.latitude, ride.origin.longitude],
-        [ride.destination.latitude, ride.destination.longitude],
-      ]);
-    }
-    return null;
   };
 
   return (
@@ -54,7 +54,7 @@ export default function RideMap({
       <Marker
         position={[ride.destination.latitude, ride.destination.longitude]}
       />
-      <FitBounds />
+      <FitBounds ride={ride} />
       {routeCoordinates.length > 0 && <Polyline positions={routeCoordinates} />}
     </MapContainer>
   );

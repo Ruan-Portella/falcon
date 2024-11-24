@@ -4,6 +4,6 @@ import { columns } from "./columns";
 
 export default function TripOptions({ options }: { options: TripResponse[] }) {
   return (
-    <DataTable columns={columns} data={options} filterKey="name" />
+    <DataTable columns={columns} data={options} />
   );
 }

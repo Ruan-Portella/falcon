@@ -34,7 +34,7 @@ export const TripForm = ({
     resolver: zodResolver(TripSchema),
     defaultValues: {
       customer_id: "",
-      driver_id: "",
+      driver_id: "all",
     },
   });
   
@@ -57,6 +57,7 @@ export const TripForm = ({
                 <Input
                   placeholder="Identificador"
                   disabled={loading}
+                  data-testid="customer_id"
                   {...field}
                 />
               </FormControl>
@@ -77,7 +78,7 @@ export const TripForm = ({
                     <SelectValue placeholder='Selecionar Motorista' />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent>
+                <SelectContent data-testid='driver_id' >
                   <SelectItem value="all">Todos</SelectItem>
                   {
                     drivers.map((driver) => (
@@ -91,7 +92,7 @@ export const TripForm = ({
             </FormItem>
           )}
         />
-        <Button className="w-full" disabled={loading}>
+        <Button type="submit" className="w-full" disabled={loading}>
           Encontrar viagens
         </Button>
       </form>

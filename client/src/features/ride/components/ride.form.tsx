@@ -56,6 +56,7 @@ export const RideForm = ({
                 <Input
                   placeholder="Identificador"
                   disabled={loading}
+                  data-testid="customer_id"
                   {...field}
                 />
               </FormControl>
@@ -69,7 +70,7 @@ export const RideForm = ({
             <FormItem>
               <FormLabel htmlFor="origin">Origem</FormLabel>
               <FormControl>
-                <Input placeholder="Origem" disabled={loading} {...field} />
+                <Input placeholder="Origem" disabled={loading} data-testid="origin" {...field} />
               </FormControl>
             </FormItem>
           )}
@@ -81,12 +82,12 @@ export const RideForm = ({
             <FormItem>
               <FormLabel htmlFor="destination">Destino</FormLabel>
               <FormControl>
-                <Input placeholder="Destino" disabled={loading} {...field} />
+                <Input placeholder="Destino" disabled={loading} data-testid="destination" {...field} />
               </FormControl>
             </FormItem>
           )}
         />
-        <Button className="w-full" disabled={loading}>
+        <Button type="submit" className="w-full" disabled={loading}>
           Pesquisar Viagem
         </Button>
       </form>

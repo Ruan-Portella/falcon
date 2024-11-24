@@ -1,10 +1,15 @@
 import path from "path"
-import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vitest/config'
 
 // https://vite.dev/config/
 export default defineConfig({
-   server: {
+  test: { 
+    environment : 'jsdom' , 
+    globals : true , 
+    setupFiles : './src/tests/setup.ts' ,
+   } ,
+  server: {
     watch: {
       usePolling: true,
     },

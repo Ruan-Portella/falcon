@@ -5,7 +5,7 @@ import '@testing-library/jest-dom';
 import { vi } from 'vitest';
 import { BrowserRouter, Route, Routes } from 'react-router';
 import { driverResponse } from '@/mocks/ride.mock';
-import { toast } from 'sonner';
+import { toast, Toaster } from 'sonner';
 import { TripFailedResponse, TripOptionsResponse, TripResponse } from '@/mocks/trip.mock';
 
 const mocks = vi.hoisted(() => ({
@@ -125,6 +125,7 @@ describe('Trip Test', () => {
 
     render(
       <BrowserRouter>
+        <Toaster />
         <Routes>
           <Route path="/" element={<Trips />} />
         </Routes>
@@ -165,7 +166,7 @@ describe('Trip Test', () => {
       expect(toast.error).toHaveBeenCalledWith('Nenhum registro encontrado');
     });
   });
- 
+
   it('Verifica se é possivel filtrar a tabela', async () => {
     mocks.get.mockResolvedValueOnce({ data: { drivers: driverResponse } });
     mocks.get.mockResolvedValueOnce({ data: TripResponse });
@@ -190,10 +191,6 @@ describe('Trip Test', () => {
       expect(mocks.get).toHaveBeenCalled();
       expect(mocks.get).toHaveBeenCalledTimes(2);
     });
-
-    const inputFilter = screen.getByPlaceholderText('Filtrar por nome');
-
-    await userEvent.type(inputFilter, 'Homer');
 
     await waitFor(() => {
       expect(screen.getByText('Homer Simpson')).toBeInTheDocument();

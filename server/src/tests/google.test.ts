@@ -1,7 +1,6 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const sinon = require('sinon');
-const fetchMock = require('fetch-mock');
 import GoogleModel from "../models/google.model";
 
 chai.use(chaiHttp);

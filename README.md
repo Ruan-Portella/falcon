@@ -65,7 +65,7 @@ git clone git@github.com:Ruan-Portella/falcon.git && cd falcon
 ### 5 - Suba o container do banco de dados, front e back.
 
 ```sh
-docker-compose up -d
+docker-compose up
 ```
 
 ### 6 - Teste a aplicação (Opcional)

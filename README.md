@@ -122,7 +122,7 @@ cd client && npm install && cd ../server && npm install
 `Rode o comando abaixo para subir o container do banco de dados`
 
 ```sh
-docker-compose up db -d
+docker-compose up db
 ```
 
 ### 5 - Suba a aplicação front e back

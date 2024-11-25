@@ -1,9 +1,19 @@
 import { RideConfirmDto } from "../../dtos/ride/ride.confirm.dto";
 import { RideEstimateDto } from "../../dtos/ride/ride.estimate.dto";
 import { HttpError } from "../../errors/error";
+import DriverModel from "../../models/driver.model";
+import GoogleModel from "../../models/google.model";
+import RideModel from "../../models/ride.model";
 import { prisma } from "../../prisma/client";
 
 export default class RideService {
+  constructor(
+    private rideModel = new RideModel(),
+    private driverModel = new DriverModel(),
+    private googleModel = new GoogleModel(),
+  ) {}
+
+
   public async estimate({
     customer_id,
     destination,
@@ -17,31 +27,18 @@ export default class RideService {
       });
     }
 
-    const response = await fetch('https://routes.googleapis.com/directions/v2:computeRoutes', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(process.env.GOOGLE_API_KEY && { 'X-Goog-Api-Key': process.env.GOOGLE_API_KEY }),
-        'X-Goog-FieldMask': '*'
-      },
-      body: JSON.stringify({
-        origin: {address: origin},
-        destination: {address: destination},
-      })
-    })
+    const response = await this.googleModel.getRoute({origin, destination});
 
-    const responseJson = await response.json();
-    
-    if (responseJson?.error) {
+    if (!response.routes) {
       throw new HttpError(404, {
         error_description: 'Endereço não encontrado',
         error_code: 'ADDRESS_NOT_FOUND',
       });
     }
 
-    const kmDistance = responseJson.routes[0].distanceMeters / 1000;
-    
-    const drivers = await prisma.driver.findMany({
+    const kmDistance = response.routes[0].distanceMeters / 1000;
+
+    const drivers = await this.driverModel.getDriversFilter({
       where: {
         minKm: {
           lte: kmDistance,
@@ -50,7 +47,7 @@ export default class RideService {
       orderBy: {
         ratePerKm: 'asc'
       }
-    })
+    });
 
     const options = drivers.map((driver) => ({
       id: driver.id,
@@ -68,17 +65,17 @@ export default class RideService {
       status: 200,
       data: {
         origin: {
-          latitude: responseJson.routes[0].legs[0].startLocation.latLng.latitude,
-          longitude: responseJson.routes[0].legs[0].startLocation.latLng.longitude,
+          latitude: response.routes[0].legs[0].startLocation.latLng.latitude,
+          longitude: response.routes[0].legs[0].startLocation.latLng.longitude,
         },
         destination: {
-          latitude: responseJson.routes[0].legs[0].endLocation.latLng.latitude,
-          longitude: responseJson.routes[0].legs[0].endLocation.latLng.longitude,
+          latitude: response.routes[0].legs[0].endLocation.latLng.latitude,
+          longitude: response.routes[0].legs[0].endLocation.latLng.longitude,
         },
-        distance: responseJson.routes[0].distanceMeters,
-        duration: responseJson.routes[0].duration,
+        distance: response.routes[0].distanceMeters,
+        duration: response.routes[0].duration,
         options,
-        routeResponse: responseJson,
+        routeResponse: response,
       },
     };
   }
@@ -100,11 +97,7 @@ export default class RideService {
       });
     }
 
-    const driverDB = await prisma.driver.findUnique({
-      where: {
-        id: driver.id,
-      }
-    })
+    const driverDB = await this.driverModel.getDriverById({id: driver.id});
 
     if (!driverDB) {
       throw new HttpError(404, {
@@ -120,16 +113,14 @@ export default class RideService {
       });
     }
 
-    await prisma.rides.create({
-      data: {
-        customer_id,
-        destination,
-        origin,
-        distance,
-        duration,
-        driver_id: driver.id,
-        value,
-      }
+    await this.rideModel.createRide({
+      customer_id,
+      destination,
+      origin,
+      distance,
+      duration,
+      driver_id: driver.id,
+      value,
     });
 
     return {
@@ -141,7 +132,7 @@ export default class RideService {
   }
 
   public async getRides(customer_id: string, driver_id?: number): Promise<{status: number, data: object}> {
-    if (!customer_id) {
+    if (!customer_id || customer_id === '0') {
       throw new HttpError(400, {
         error_description: "Os dados fornecidos no corpo da requisição são inválidos",
         error_code: "INVALID_DATA",
@@ -150,11 +141,7 @@ export default class RideService {
 
     if (driver_id) {
 
-      const driver = await prisma.driver.findUnique({
-        where: {
-          id: driver_id,
-        }
-      });
+      const driver = await this.driverModel.getDriverById({id: driver_id});
 
       if (!driver) {
         throw new HttpError(404, {
@@ -163,15 +150,7 @@ export default class RideService {
         });
       }
 
-      const rides = await prisma.rides.findMany({
-        where: {
-          customer_id,
-          driver_id,
-        },
-        orderBy: {
-          date: 'desc'
-        },
-      });
+      const rides = await this.rideModel.getRides(customer_id, driver_id);
 
       if (rides.length === 0) {
         throw new HttpError(404, {
@@ -203,17 +182,7 @@ export default class RideService {
       }
     } 
 
-    const rides = await prisma.rides.findMany({
-      where: {
-        customer_id,
-      },
-      orderBy: {
-        date: 'desc'
-      },
-      include: {
-        driver: true,
-      }
-    });
+    const rides = await this.rideModel.getRides(customer_id);
 
     if (rides.length === 0) {
       throw new HttpError(404, {
